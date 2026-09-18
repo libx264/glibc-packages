@@ -2,7 +2,7 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 9eb7f3c..95ed2a6 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -1515,11 +1515,11 @@ if(NOT _x86 AND NOT _x86_64)
+@@ -1120,11 +1120,11 @@ if(NOT _x86 AND NOT _x86_64 AND NOT NOBOX64)
    if(NOT NO_CONF_INSTALL)
      configure_file(system/box64.conf.cmake system/box64.conf)
  	  if(NOT TERMUX)
@@ -17,7 +17,7 @@ index 9eb7f3c..95ed2a6 100644
          endif()
        else()
          install(FILES ${CMAKE_BINARY_DIR}/system/box64.conf DESTINATION ${TERMUX_PATH}/usr/etc/binfmt.d/)
-@@ -1531,7 +1531,7 @@ if(NOT _x86 AND NOT _x86_64)
+@@ -1137,7 +1137,7 @@ if(NOT _x86 AND NOT _x86_64 AND NOT NOBOX64)
  	  endif()
  
    endif()
@@ -26,7 +26,7 @@ index 9eb7f3c..95ed2a6 100644
    if(NOT NO_LIB_INSTALL)
  	if(NOT TERMUX AND NOT ANDROID)
          install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libstdc++.so.5 DESTINATION ${INSTALL_PATH})
-@@ -1570,7 +1570,7 @@ if(NOT _x86 AND NOT _x86_64)
+@@ -1173,7 +1173,7 @@ if(NOT _x86 AND NOT _x86_64 AND NOT NOBOX64)
  	endif()
     endif()
     if(BOX32)
@@ -39,7 +39,7 @@ diff --git a/src/core.c b/src/core.c
 index c33c384..969744b 100644
 --- a/src/core.c
 +++ b/src/core.c
-@@ -830,7 +830,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
+@@ -458,7 +458,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
          printf("See 'box64 --help' for more information.\n");
          exit(0);
      }
@@ -52,38 +52,45 @@ diff --git a/src/steam.c b/src/steam.c
 index 4a0323a..128c1d7 100644
 --- a/src/steam.c
 +++ b/src/steam.c
-@@ -88,13 +88,13 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
-                 if(is_usr) {
-                     // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
-                     char tmp[strlen(argv[nextarg])+150];
--                    strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/box86-i386-linux-gnu:/usr/lib/box64-i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
-+                    strcpy(tmp, "BOX86_LD_LIBRARY_PATH=@TERMUX_PREFIX@/lib/box86:@TERMUX_PREFIX@/lib/i386-linux-gnu:@TERMUX_PREFIX@/lib/box86-i386-linux-gnu:@TERMUX_PREFIX@/lib/box64-i386-linux-gnu:@TERMUX_PREFIX@/lib/i686-pc-linux-gnu:@TERMUX_PREFIX@/lib32:");
-                     strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
-                     char *p = strchr(tmp, '=');
-                     *p ='\0'; ++p;
-                     setenv(tmp, p, 1);
-                     printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
--                    strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/box64-x86_64-linux-gnu:/usr/lib/box64-i386-linux-gnu:");
-+                    strcpy(tmp, "BOX64_LD_LIBRARY_PATH=@TERMUX_PREFIX@/lib/x86_64-linux-gnu:@TERMUX_PREFIX@/lib/box64-x86_64-linux-gnu:@TERMUX_PREFIX@/lib/box64-i386-linux-gnu:");
-                     strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
-                     p = strchr(tmp, '=');
-                     *p ='\0'; ++p;
-@@ -174,8 +174,8 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
-                 strncat(tmp, tmp2, sizeof(tmp)-1);  \
-                 strncat(tmp, ":", sizeof(tmp)-1);   \
-             }
+@@ -128,19 +128,19 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
+                 } else if (strstr(argv[nextarg], "--env-if-host=STEAM_RUNTIME_LIBRARY_PATH=") == argv[nextarg]) {
+                     if (is_usr) {
+                         // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
+                         char tmp[strlen(argv[nextarg]) + 150];
+-                        strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/box86-i386-linux-gnu:/usr/lib/box64-i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
++                        strcpy(tmp, "BOX86_LD_LIBRARY_PATH=@TERMUX_PREFIX@/lib/box86:@TERMUX_PREFIX@/lib/i386-linux-gnu:@TERMUX_PREFIX@/lib/box86-i386-linux-gnu:@TERMUX_PREFIX@/lib/box64-i386-linux-gnu:@TERMUX_PREFIX@/lib/i686-pc-linux-gnu:@TERMUX_PREFIX@/lib32:");
+                         strcat(tmp, argv[nextarg] + strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
+                         char* p = strchr(tmp, '=');
+                         *p = '\0';
+                         ++p;
+                         setenv(tmp, p, 1);
+                         printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+-                        strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/box64-x86_64-linux-gnu:/usr/lib/box64-i386-linux-gnu:");
++                        strcpy(tmp, "BOX64_LD_LIBRARY_PATH=@TERMUX_PREFIX@/lib/x86_64-linux-gnu:@TERMUX_PREFIX@/lib/box64-x86_64-linux-gnu:@TERMUX_PREFIX@/lib/box64-i386-linux-gnu:");
+                         strcat(tmp, argv[nextarg] + strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
+                         p = strchr(tmp, '=');
+                         *p = '\0';
+                         ++p;
+                         setenv(tmp, p, 1);
+                         printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                     }
+                 }
+@@ -204,8 +204,8 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
+             GO("%s/lib", sniper)
+             GO("%s/lib64", sniper)
+             GO("%s/lib32", sniper)
 -            GO("/usr/lib/%s-x86_64-linux-gnu", "box64")
 -            GO("/usr/lib/%s-i386-linux-gnu/", "box64")
 +            GO("@TERMUX_PREFIX@/lib/%s-x86_64-linux-gnu", "box64")
 +            GO("@TERMUX_PREFIX@/lib/%s-i386-linux-gnu/", "box64")
-             GO("%s/lib/x86_64-linux-gnu", sniper)
-             GO("%s/lib/i386-linux-gnu", sniper)
-             GO("%s/lib/x86_64-linux-gnu/openblas", sniper)
+             #undef GO
+             if(ld) strncat(tmp, ld, sizeof(tmp)-1);
+             setenv("LD_LIBRARY_PATH", tmp, 1);
 diff --git a/src/tools/fileutils.c b/src/tools/fileutils.c
 index 135f15b..bc6a0ac 100644
 --- a/src/tools/fileutils.c
 +++ b/src/tools/fileutils.c
-@@ -17,10 +17,10 @@
+@@ -20,10 +20,10 @@
  
  static const char* x86lib  = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
  static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
@@ -115,7 +122,7 @@ diff --git a/src/wrapped/wrappedlibdl.c b/src/wrapped/wrappedlibdl.c
 index c9c521e..79c2b49 100644
 --- a/src/wrapped/wrappedlibdl.c
 +++ b/src/wrapped/wrappedlibdl.c
-@@ -140,7 +140,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
+@@ -139,7 +139,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
              if(sys)
                  return sys;
          }
