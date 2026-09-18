@@ -92,19 +92,19 @@ index 135f15b..bc6a0ac 100644
 +++ b/src/tools/fileutils.c
 @@ -20,10 +20,10 @@
  
- static const char* x86lib  = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
- static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
--static const char[] bashsign= "#!/bin/bash";
--static const char[] shsign  = "#!/bin/sh";
--static const char[] bashsign2="#!/usr/bin/env bash";
--static const char[] pythonsign="#!/usr/bin/env python3";
-+static const char[] bashsign= "#!@TERMUX_PREFIX@/bin/bash";
-+static const char[] shsign  = "#!@TERMUX_PREFIX@/bin/sh";
-+static const char[] bashsign2="#!@TERMUX_PREFIX@/bin/env bash";
-+static const char[] pythonsign="#!@TERMUX_PREFIX@/bin/env python3";
+ static const char x86lib[]    = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
+ static const char x64lib[]    = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
+-static const char bashsign[]  = "#!/bin/bash";
+-static const char shsign[]    = "#!/bin/sh";
+-static const char bashsign2[] = "#!/usr/bin/env bash";
+-static const char pythonsign[]= "#!/usr/bin/env python3";
++static const char[] bashsign=   "#!@TERMUX_PREFIX@/bin/bash";
++static const char[] shsign  =   "#!@TERMUX_PREFIX@/bin/sh";
++static const char[] bashsign2=  "#!@TERMUX_PREFIX@/bin/env bash";
++static const char[] pythonsign= "#!@TERMUX_PREFIX@/bin/env python3";
  
- static char* ResolvePathInner(const char* path, int resolve_symlink) {
-     if (resolve_symlink) {
+ #define MAX2(a, b)       ((a) > (b) ? (a) : (b))
+ #define MAX3(a, b, c)    MAX2(MAX2(a, b), c)
 diff --git a/src/wrapped/wrappedd3dadapter9.c b/src/wrapped/wrappedd3dadapter9.c
 index de962ee..67a786f 100644
 --- a/src/wrapped/wrappedd3dadapter9.c
